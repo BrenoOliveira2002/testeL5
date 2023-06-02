@@ -1,0 +1,59 @@
+name: Build and Deploy API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.13.0'
+
+      - name: Install SSH client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Install Yarn
+        run: |
+          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+          echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+          sudo apt-get update && sudo apt-get install -y yarn
+
+      - name: Transfer files to EC2 instance
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          source: ./*
+          target: /home/ubuntu/testel5
+
+      - name: SSH into EC2 instance and install all dependencies
+        uses: appleboy/ssh-action@master
+        with:
+         host: ${{ secrets.EC2_HOST }}
+         username: ${{ secrets.EC2_USER }}
+         key: ${{ secrets.PRIVATE_KEY }}
+         port: 20
+         script: |
+          cd /home/ubuntu/testel5
+          yarn install
+             
+      - name: SSH into EC2 instance and start application
+        uses: appleboy/ssh-action@master
+        with:
+         host: ${{ secrets.EC2_HOST }}
+         username: ${{ secrets.EC2_USER }}
+         key: ${{ secrets.PRIVATE_KEY }}
+         port: 20
+         script: |
+          cd /home/ubuntu/testel5
+          yarn start &
