@@ -39,9 +39,10 @@ class UserRepository {
   }
 
   public async getUserById(id: number): Promise<User | null> {
-    return prisma.user.findUnique({ where: { id } });
+    return prisma.user.findUnique({ where: { id: id } });
   }
 
+  
   public async createUser(userData: UserCreateDTO): Promise<UserDTO> {
     const { nome, cpf, email, phone, password } = userData;
     return prisma.user.create({
@@ -78,12 +79,17 @@ class UserRepository {
   async saveFileData(mediaDTO: MediaDTO): Promise<void> {
     await prisma.media.create({
       data: {
-        url_midia : mediaDTO.urlMidia,
+        url_midia: mediaDTO.urlMidia,
         type: mediaDTO.type,
-        userId: mediaDTO.userId
+        user: {
+          connect: {
+            id: Number(mediaDTO.userId),
+          },
+        },
       },
     });
   }
+  
 
   public async getMediaByID(id: number): Promise<Media | null> {
     return prisma.media.findUnique({

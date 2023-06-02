@@ -82,9 +82,8 @@ class UserController {
     const { id, type, file } = req.body;
 
     try {
-      const existingUser: UserDTO | null = await UserService.findById(
-        Number(id)
-      );
+      const existingUser = await UserService.findById(Number(id));
+
       if (!existingUser) {
         return res.status(404).json({ error: "Usuário não encontrado." });
       }
@@ -108,6 +107,8 @@ class UserController {
         media: createdMedia,
       });
     } catch (error) {
+      console.log(error);
+
       res.status(500).json({ error: "Erro ao enviar o arquivo." });
     }
   }
@@ -117,6 +118,7 @@ class UserController {
 
     try {
       const media = await UserService.getMediaByID(Number(id));
+
       if (!media) {
         return res.status(404).json({ error: "Mídia não encontrada." });
       }
