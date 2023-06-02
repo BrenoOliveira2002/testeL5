@@ -75,7 +75,6 @@ class UserController {
             if (!existingUser) {
                 return res.status(404).json({ error: "Usuário não encontrado." });
             }
-            console.log("fon");
             const fileName = `${id}_.${type}`;
             const fileBuffer = Buffer.from(file, "base64");
             const fileUrl = await S3_1.default.uploadFile(fileName, fileBuffer, type);
@@ -92,6 +91,7 @@ class UserController {
             });
         }
         catch (error) {
+            console.log(error);
             res.status(500).json({ error: "Erro ao enviar o arquivo." });
         }
     }

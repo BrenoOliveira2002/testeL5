@@ -36,7 +36,7 @@ class UserRepository {
         return prisma.user.findMany();
     }
     async getUserById(id) {
-        return prisma.user.findUnique({ where: { id } });
+        return prisma.user.findUnique({ where: { id: id } });
     }
     async createUser(userData) {
         const { nome, cpf, email, phone, password } = userData;
@@ -68,7 +68,11 @@ class UserRepository {
             data: {
                 url_midia: mediaDTO.urlMidia,
                 type: mediaDTO.type,
-                userId: mediaDTO.userId
+                user: {
+                    connect: {
+                        id: Number(mediaDTO.userId),
+                    },
+                },
             },
         });
     }

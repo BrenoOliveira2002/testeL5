@@ -32,17 +32,14 @@ class UserValidator {
                 .json({ error: "O nome deve ter entre 3 e 30 caracteres." });
         }
         try {
-            // Verificar se o email já está sendo utilizado
             const existingEmail = await UserService_1.default.getUserByEmail(email);
             if (existingEmail) {
                 return res.status(400).json({ error: "Email já cadastrado." });
             }
-            // Verificar se o telefone já está sendo utilizado
             const existingPhone = await UserService_1.default.getUserByPhone(phone);
             if (existingPhone) {
                 return res.status(400).json({ error: "Telefone já cadastrado." });
             }
-            // Verificar se o CPF já está sendo utilizado
             const existingCPF = await UserService_1.default.getUserByCPF(cpf);
             if (existingCPF) {
                 return res.status(400).json({ error: "CPF já cadastrado." });
@@ -71,21 +68,18 @@ class UserValidator {
             return res.status(400).json({ error: "O email deve ser válido." });
         }
         try {
-            // Verificar se o email já está sendo utilizado
             if (email) {
                 const existingEmail = await UserService_1.default.getUserByEmail(email);
                 if (existingEmail && existingEmail.id !== id) {
                     return res.status(400).json({ error: "Email já cadastrado." });
                 }
             }
-            // Verificar se o telefone já está sendo utilizado
             if (phone) {
                 const existingPhone = await UserService_1.default.getUserByPhone(phone);
                 if (existingPhone && existingPhone.id !== id) {
                     return res.status(400).json({ error: "Telefone já cadastrado." });
                 }
             }
-            // Verificar se o CPF já está sendo utilizado
             if (cpf) {
                 const existingCPF = await UserService_1.default.getUserByCPF(cpf);
                 if (existingCPF && existingCPF.id !== id) {

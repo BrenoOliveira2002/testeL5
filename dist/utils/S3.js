@@ -14,7 +14,7 @@ class S3Client {
     }
     async uploadFile(fileName, fileBuffer, type) {
         const params = {
-            Bucket: "sextoou",
+            Bucket: "testel5",
             Key: fileName,
             Body: fileBuffer,
             ContentType: type,
