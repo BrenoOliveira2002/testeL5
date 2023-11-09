@@ -2,7 +2,6 @@
   "name": "testel5",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:BrenoOliveira2002/testeL5.git",
   "author": "brenooliveira2002 <breno_2002_@outlook.com>",
   "license": "MIT",
   "engines": {

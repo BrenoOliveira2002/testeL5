@@ -1,12 +1,8 @@
 import { Router } from "express";
-import usersRouter from "./user/userRoutes"
-import userByGithubRoutes from "./github/userByGitHubRoutes";
-
+import produtosRouter from "./produtos/userRoutes"
 const routes = Router();
 
-routes.use("/user", usersRouter);
-
-routes.use("/github", userByGithubRoutes);
+routes.use("/produtos", produtosRouter);
 
 
 

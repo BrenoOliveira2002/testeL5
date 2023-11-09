@@ -7,22 +7,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int     @id @default(autoincrement())
-  nome     String
-  cpf      String  @unique
-  phone    String  @unique
-  email    String  @unique
-  password String
-  midias   Media[]
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Produtos {
+  id        Int?
+  nome      String?  @db.VarChar(50)
+  categoria String?  @db.VarChar(50)
+  preco     Decimal? @db.Decimal(10, 2)
 
-  @@map(name: "users")
+  @@map("produtos")
+  @@ignore
 }
 
-model Media {
-  id        Int    @id @default(autoincrement())
-  url_midia String
-  type      String
-  userId    Int
-  user      User   @relation(fields: [userId], references: [id])
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Pessoas {
+  id       Int?
+  nome     String? @db.VarChar(50)
+  idade    Int?
+  endereco String? @db.VarChar(50)
+
+  @@map("pessoas")
+  @@ignore
+}
+
+model Pagamentos {
+  pagamento Int     @id(map: "pk_pagamento")
+  descricao String? @db.VarChar(50)
+
+  @@map("pagamentos")
+}
+
+model clientes_cluster {
+  id       Int     @id(map: "clientes_pkey") @default(autoincrement())
+  nome     String? @db.VarChar(50)
+  idade    Int?
+  endereco String? @db.VarChar(50)
+  cluster  Int?
+}
+
+model clusters {
+  cluster   Int     @id(map: "clausters_pkey")
+  descricao String? @db.VarChar(50)
+}
+
+model recomendacoes {
+  produto_analisado                 String? @db.VarChar(50)
+  produto_consequentemente_comprado String? @db.VarChar(50)
+  confianca                         Float?
+  lift                              Float?
+
+  @@ignore
+}
+
+model vendas {
+  id         Int?
+  id_cliente Int?
+  id_produto Int?
+  data_venda DateTime? @db.Date
+  valor      Decimal?  @db.Decimal(10, 2)
+  pagamento  Int?
+
+  @@ignore
 }
