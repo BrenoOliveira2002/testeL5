@@ -4,6 +4,9 @@ const routes = Router();
 
 routes.use("/produtos", produtosRouter);
 
+routes.use("/clients", produtosRouter);
+
+
 
 
 export default routes;

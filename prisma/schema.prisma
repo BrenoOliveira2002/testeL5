@@ -7,26 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Produtos {
-  id        Int?
+  id       Int     @id() @default(autoincrement())
   nome      String?  @db.VarChar(50)
   categoria String?  @db.VarChar(50)
   preco     Decimal? @db.Decimal(10, 2)
 
   @@map("produtos")
-  @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Pessoas {
-  id       Int?
+  id       Int     @id() @default(autoincrement())
   nome     String? @db.VarChar(50)
   idade    Int?
   endereco String? @db.VarChar(50)
 
   @@map("pessoas")
-  @@ignore
 }
 
 model Pagamentos {
@@ -49,22 +45,19 @@ model clusters {
   descricao String? @db.VarChar(50)
 }
 
-model recomendacoes {
-  produto_analisado                 String? @db.VarChar(50)
-  produto_consequentemente_comprado String? @db.VarChar(50)
-  confianca                         Float?
-  lift                              Float?
-
-  @@ignore
-}
+// model recomendacoes {
+//   produto_analisado                 String? @db.VarChar(50)
+//   produto_consequentemente_comprado String? @db.VarChar(50)
+//   confianca                         Float?
+//   lift                              Float?
+// }
 
 model vendas {
-  id         Int?
+  id         Int @id() @default(autoincrement())
   id_cliente Int?
   id_produto Int?
   data_venda DateTime? @db.Date
   valor      Decimal?  @db.Decimal(10, 2)
   pagamento  Int?
 
-  @@ignore
 }

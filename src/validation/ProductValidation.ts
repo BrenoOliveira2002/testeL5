@@ -14,5 +14,4 @@ class ProductValidator {
 
 }
 
-console.log("teste")
 export default new ProductValidator();

@@ -1,25 +1,32 @@
 import { Request, Response } from "express";
 import ProdutoService from "../service/ProdutoService";
-import { produtoInterface } from "../../types/produto/produtoInterface";
 
 class ProdutoController {
   public async GetAllProducts(req: Request, res: Response) {
     try {
-      const { nome, cpf, email, phone } = req.query;
-      // const produtoDTO: produtoInterface = {
-      //   nome: nome?.toString() || "",
-      //   cpf: cpf?.toString() || "",
-      //   email: email?.toString() || "",
-      //   phone: phone?.toString() || "",
-      // };
-
-      const products = await ProdutoService.getAllUsers();
+      const products = await ProdutoService.listAllProducts();
       res.json(products);
     } catch (error) {
       console.log(error)
-      res.status(500).json({ error: "Erro ao buscar os usuários." });
+      res.status(500).json({ error: "Erro ao buscar os produtos." });
     }
   }
+
+  public async GetProductByIdAndType(req: Request, res: Response) {
+    try {
+      
+        req.query.type =  req.query.type?.toString() || ""
+        req.query.id =  req.query.id?.toString() || ""
+
+        const products = await ProdutoService.getProdocutById(req.query.id, req.query.type);
+        res.json(products); 
+    }
+     catch (error) {
+      console.log(error)
+      res.status(500).json({ error: "Erro ao buscar os produtos." });
+    }
+  }
+
 }
 
 export default new ProdutoController();
