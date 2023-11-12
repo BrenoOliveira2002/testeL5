@@ -5,7 +5,11 @@ const produtosRouter = Router();
 
 produtosRouter
  
-  .get("/produtos", produtoController.GetAllProducts)
+  .get("/", produtoController.GetAllProducts)
+  .get("/info", produtoController.GetAllInforProduct)
+  .get("/info/vendas", produtoController.GetProductByIdAndType)
+
+  
 
 
 export default produtosRouter;

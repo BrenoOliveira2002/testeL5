@@ -8,8 +8,8 @@ datasource db {
 }
 
 model Produtos {
-  id       Int     @id() @default(autoincrement())
-  nome      String?  @db.VarChar(50)
+  id        Int      @id @default(autoincrement())
+  nome      String?  @db.VarChar(255)
   categoria String?  @db.VarChar(50)
   preco     Decimal? @db.Decimal(10, 2)
 
@@ -17,7 +17,7 @@ model Produtos {
 }
 
 model Pessoas {
-  id       Int     @id() @default(autoincrement())
+  id       Int @id @default(autoincrement())
   nome     String? @db.VarChar(50)
   idade    Int?
   endereco String? @db.VarChar(50)
@@ -25,39 +25,18 @@ model Pessoas {
   @@map("pessoas")
 }
 
-model Pagamentos {
-  pagamento Int     @id(map: "pk_pagamento")
-  descricao String? @db.VarChar(50)
-
-  @@map("pagamentos")
-}
-
-model clientes_cluster {
-  id       Int     @id(map: "clientes_pkey") @default(autoincrement())
+model clientes {
+  id       Int     @id @default(autoincrement())
   nome     String? @db.VarChar(50)
   idade    Int?
   endereco String? @db.VarChar(50)
   cluster  Int?
 }
 
-model clusters {
-  cluster   Int     @id(map: "clausters_pkey")
-  descricao String? @db.VarChar(50)
-}
-
-// model recomendacoes {
-//   produto_analisado                 String? @db.VarChar(50)
-//   produto_consequentemente_comprado String? @db.VarChar(50)
-//   confianca                         Float?
-//   lift                              Float?
-// }
-
-model vendas {
-  id         Int @id() @default(autoincrement())
-  id_cliente Int?
-  id_produto Int?
-  data_venda DateTime? @db.Date
-  valor      Decimal?  @db.Decimal(10, 2)
-  pagamento  Int?
-
+model recomendacoes {
+  produto_analisado                 String? @db.VarChar(50)
+  produto_consequentemente_comprado String? @db.VarChar(50)
+  confianca                         Float?
+  lift                              Float?
+  id                                Int     @id @default(autoincrement())
 }

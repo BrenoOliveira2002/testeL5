@@ -2,11 +2,8 @@ import ClientRepository from "../repository/ClientRepository";
 
 
 class ClientService {
-  static async listClients() {
-    return await ClientRepository.getClientSeg();
-  }
-
-  static async getProdocutById(segmentacao: string) {
+  
+  static async listClientBySegment(segmentacao: string) {
     return await ClientRepository.listClientBySeg(segmentacao);
   }
 

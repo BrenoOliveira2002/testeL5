@@ -1,24 +1,14 @@
 import { Request, Response } from "express";
-import ProdutoService from "../service/ProdutoService";
-import { produtoInterface, reqProduto } from "../../types/produto/produtoInterface";
-import ProductValidation from "../../validation/ProductValidation";
+import ClientService from "../service/ClientService";
 
 class ClientController {
 
-  public async listClientWithSegmentation(req: Request, res: Response) {
-    try {
-      const clientPurchases = await ClientService.getProdocutById();
-    } catch (error) {
-      console.log(error)
-      res.status(500).json({ error: "Erro ao buscar os compras do client." });
-    }
-  }
-
   public async listClientPurchases(req: Request, res: Response) {
     try {
-      const { id} = req.query;
-      id: id?.toString() || ""
-      const clientPurchases = await ClientService.getProdocutById();
+     
+      req.query.segment = req.query.segment?.toString() || ""
+      const clientPurchases = await ClientService.listClientBySegment(req.query.segment);
+      res.json(clientPurchases)
     } catch (error) {
       console.log(error)
       res.status(500).json({ error: "Erro ao buscar os compras do client." });

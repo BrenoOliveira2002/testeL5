@@ -1,11 +1,12 @@
 import { Router } from "express";
-import produtoController from "../../controller/ProdutoController";
+import ClientController from "../../controller/ClientController";
 
-const produtosRouter = Router();
+const clientRouter = Router();
 
-produtosRouter
-  .get("/produtos", produtoController.GetAllProducts)
-  .get("/list/produtos", produtoController.GetProductByIdAndType)
+clientRouter
+
+.get("/vendas", ClientController.listClientPurchases)
+.get("/segmentacao", ClientController.listClientPurchases)
 
 
-export default produtosRouter;
+export default clientRouter;

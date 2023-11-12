@@ -18,12 +18,23 @@ class ProdutoController {
         req.query.type =  req.query.type?.toString() || ""
         req.query.id =  req.query.id?.toString() || ""
 
-        const products = await ProdutoService.getProdocutById(req.query.id, req.query.type);
+        const products = await ProdutoService.listProdocutByIdAndType(req.query.id, req.query.type);
         res.json(products); 
     }
      catch (error) {
       console.log(error)
       res.status(500).json({ error: "Erro ao buscar os produtos." });
+    }
+  }
+
+  public async GetAllInforProduct(req: Request, res: Response){
+    console.log("fon")
+    try{
+        req.query.id =  req.query.id?.toString() || ""
+        const products = await ProdutoService.getProductAllInfo(parseInt(req.query.id));
+        res.json(products); 
+    }catch(error){
+      console.log(error)
     }
   }
 
