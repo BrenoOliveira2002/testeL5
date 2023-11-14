@@ -4,13 +4,17 @@ const prisma = new PrismaClient();
 
 class ProductRepository {
   async listProducts() {
-    try{
-      return prisma.produtos.findMany()
+    try {
+      return await prisma.produtos.findMany({
+        orderBy: {
+          nome: 'asc', 
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
-  catch(err) {
-    console.log(err)
-  }
-}
+  
 
 public async getProductById(id?: number, type?: string) {
   try {
@@ -79,70 +83,88 @@ public async getProductById(id?: number, type?: string) {
   
 }
 
-public async getAllInfoProduct(id: number){
-  try{
-  return await prisma.$queryRawUnsafe(`
-  SELECT
-  p.id AS produto_id,
-  p.nome AS produto_nome,
-  p.categoria AS produto_categoria,
-  CAST(p.preco AS INTEGER) AS produto_preco,
-  json_agg(json_build_object(
-    'id_venda', v.id,
-    'id_cliente', v.id_cliente,
-    'data_venda', v.data_venda,
-    'tipo_pagamento', CASE v.pagamento
-                        WHEN 1 THEN 'débito'
-                        WHEN 2 THEN 'boleto'
-                        WHEN 3 THEN 'pix'
-                        WHEN 4 THEN 'credito'
-                        ELSE 'null'
-                      END
-  )) AS historico_vendas,
-  CAST(COUNT(*) FILTER(WHERE v.pagamento = 1) AS INTEGER) AS débito,
-  CAST(COUNT(*) FILTER(WHERE v.pagamento = 2) AS INTEGER) AS boleto,
-  CAST(COUNT(*) FILTER(WHERE v.pagamento = 3) AS INTEGER) AS pix,
-  CAST(COUNT(*) FILTER(WHERE v.pagamento = 4) AS INTEGER) AS credito,
-  (
-    SELECT 
-      json_agg(json_build_object(
-        'mes', mes,
-        'quantidade', quantidade
-      )) AS quantidade_por_mes
-    FROM (
+public async getAllInfoProduct(id: number) {
+  try {
+    return await prisma.$queryRawUnsafe(`
       SELECT
-        EXTRACT(MONTH FROM v.data_venda) AS mes,
-        COUNT(*) AS quantidade
-      FROM vendas v
-      WHERE p.id = v.id_produto
-      GROUP BY mes
-      ORDER BY mes
-    ) AS subquery
-  ) AS quantidade_por_mes,
-  json_agg(json_build_object(
-    'produto_consequentemente_comprado', r.produto_consequentemente_comprado,
-    'confianca', r.confianca,
-    'lift', r.lift
-  )) AS recomendacoes
-FROM
-  produtos p
-LEFT JOIN
-  vendas v ON p.id = v.id_produto
-LEFT JOIN
-  recomendacoes r ON p.nome = r.produto_analisado -- Substitua essa condição pela condição correta
-WHERE
-  p.id = ${id}
-GROUP BY
-  p.id, p.nome, p.categoria, p.preco
-ORDER BY
-  p.id;
-
-`)
-  }
-  catch(err){
-    console.log(err)
+        p.id AS produto_id,
+        p.nome AS produto_nome,
+        p.categoria AS produto_categoria,
+        CAST(p.preco AS INTEGER) AS produto_preco,
+        json_agg(json_build_object(
+          'id_venda', v.id,
+          'id_cliente', v.id_cliente,
+          'data_venda', v.data_venda,
+          'tipo_pagamento', CASE v.pagamento
+                              WHEN 1 THEN 'débito'
+                              WHEN 2 THEN 'boleto'
+                              WHEN 3 THEN 'pix'
+                              WHEN 4 THEN 'credito'
+                              ELSE 'null'
+                            END
+        )) AS historico_vendas,
+        CAST(COUNT(*) FILTER(WHERE v.pagamento = 1) AS INTEGER) AS débito,
+        CAST(COUNT(*) FILTER(WHERE v.pagamento = 2) AS INTEGER) AS boleto,
+        CAST(COUNT(*) FILTER(WHERE v.pagamento = 3) AS INTEGER) AS pix,
+        CAST(COUNT(*) FILTER(WHERE v.pagamento = 4) AS INTEGER) AS credito,
+        (
+          SELECT 
+            json_agg(json_build_object(
+              'mes', mes,
+              'quantidade', quantidade
+            )) AS quantidade_por_mes
+          FROM (
+            SELECT
+              EXTRACT(MONTH FROM v.data_venda) AS mes,
+              COUNT(*) AS quantidade
+            FROM vendas v
+            WHERE p.id = v.id_produto
+            GROUP BY mes
+            ORDER BY mes
+          ) AS subquery
+        ) AS quantidade_por_mes,
+        json_agg(json_build_object(
+          'produto_consequentemente_comprado', r.produto_consequentemente_comprado,
+          'confianca', r.confianca,
+          'lift', r.lift
+        )) AS recomendacoes,
+        CASE
+          WHEN COUNT(*) FILTER(WHERE v.pagamento = 1) >= COUNT(*) FILTER(WHERE v.pagamento = 2) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 1) >= COUNT(*) FILTER(WHERE v.pagamento = 3) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 1) >= COUNT(*) FILTER(WHERE v.pagamento = 4)
+          THEN 'débito'
+          WHEN COUNT(*) FILTER(WHERE v.pagamento = 2) >= COUNT(*) FILTER(WHERE v.pagamento = 1) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 2) >= COUNT(*) FILTER(WHERE v.pagamento = 3) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 2) >= COUNT(*) FILTER(WHERE v.pagamento = 4)
+          THEN 'boleto'
+          WHEN COUNT(*) FILTER(WHERE v.pagamento = 3) >= COUNT(*) FILTER(WHERE v.pagamento = 1) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 3) >= COUNT(*) FILTER(WHERE v.pagamento = 2) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 3) >= COUNT(*) FILTER(WHERE v.pagamento = 4)
+          THEN 'pix'
+          WHEN COUNT(*) FILTER(WHERE v.pagamento = 4) >= COUNT(*) FILTER(WHERE v.pagamento = 1) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 4) >= COUNT(*) FILTER(WHERE v.pagamento = 2) AND
+               COUNT(*) FILTER(WHERE v.pagamento = 4) >= COUNT(*) FILTER(WHERE v.pagamento = 3)
+          THEN 'credito'
+          ELSE 'null'
+        END AS metodo_principal_pagamento
+      FROM
+        produtos p
+      LEFT JOIN
+        vendas v ON p.id = v.id_produto
+      LEFT JOIN
+        recomendacoes r ON p.nome = r.produto_analisado -- Substitua essa condição pela condição correta
+      WHERE
+        p.id = ${id}
+      GROUP BY
+        p.id, p.nome, p.categoria, p.preco
+      ORDER BY
+        p.id;
+    `);
+  } catch (err) {
+    console.error(err);
   }
 }
+
 
 }
 
