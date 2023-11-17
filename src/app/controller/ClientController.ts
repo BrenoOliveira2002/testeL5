@@ -6,8 +6,8 @@ class ClientController {
   public async listClientPurchases(req: Request, res: Response) {
     try {
      
-      req.query.segment = req.query.segment?.toString() || ""
-      const clientPurchases = await ClientService.listClientBySegment(req.query.segment);
+      req.query.segmento = req.query.segmento?.toString() || ""
+      const clientPurchases = await ClientService.listClientBySegment(req.query.segmento);
       res.json(clientPurchases)
     } catch (error) {
       console.log(error)

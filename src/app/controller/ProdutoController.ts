@@ -28,10 +28,10 @@ class ProdutoController {
   }
 
   public async GetAllInforProduct(req: Request, res: Response){
-    console.log("fon")
     try{
         req.query.id =  req.query.id?.toString() || ""
         const products = await ProdutoService.getProductAllInfo(parseInt(req.query.id));
+
         res.json(products); 
     }catch(error){
       console.log(error)
