@@ -41,20 +41,28 @@ public async getProductById(id?: number, type?: string) {
     return prisma.$queryRawUnsafe(`
     WITH VendasProduto AS (
       SELECT
-        v.id,
         v.id_cliente,
         v.data_venda,
-        v.pagamento,
-        pr.id AS id_produto,
-        pr.nome AS nome_produto,
-        pr.categoria,
-        pr.preco
+        pr.id AS id_produto_comprado,
+        pr.nome AS nome_produto_comprado,
+        pr.categoria AS categoria_comprada,
+        pr.preco AS preco_comprado
       FROM
         vendas v
       JOIN
         produtos pr ON v.id_produto = pr.id
       WHERE
-        pr.id = $1 AND v.pagamento = CAST($2 AS INTEGER)
+        v.id_cliente IN (
+          SELECT id_cliente
+          FROM vendas
+          WHERE id_produto = $1 AND pagamento = CAST($2 AS INTEGER)
+        )
+        AND pr.id <> $1
+        AND v.data_venda IN (
+          SELECT data_venda
+          FROM vendas
+          WHERE id_produto = $1 AND pagamento = CAST($2 AS INTEGER)
+        )
     )
     
     SELECT
@@ -62,9 +70,9 @@ public async getProductById(id?: number, type?: string) {
       c.nome AS nome_cliente,
       vp.data_venda,
       json_agg(json_build_object(
-        'produto_comprado', vp.nome_produto,
-        'categoria_comprada', vp.categoria,
-        'preco_comprado', vp.preco
+        'produto_comprado', vp.nome_produto_comprado,
+        'categoria_comprada', vp.categoria_comprada,
+        'preco_comprado', vp.preco_comprado
       )) AS produtos_comprados_junto,
       false AS open 
     FROM
@@ -182,7 +190,6 @@ GROUP BY
     p.id, p.nome, p.categoria, p.preco
 ORDER BY
     p.id;
-
 
     `);
   } catch (err) {
