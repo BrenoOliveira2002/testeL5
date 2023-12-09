@@ -68,21 +68,29 @@ public async getProductById(id?: number, type?: string) {
     SELECT
       c.id AS cliente_id,
       c.nome AS nome_cliente,
-      vp.data_venda,
-      json_agg(json_build_object(
-        'produto_comprado', vp.nome_produto_comprado,
-        'categoria_comprada', vp.categoria_comprada,
-        'preco_comprado', vp.preco_comprado
-      )) AS produtos_comprados_junto,
+      CASE
+        WHEN COUNT(vp.id_produto_comprado) > 0
+        THEN json_agg(
+          json_build_object(
+            'produto_comprado', vp.nome_produto_comprado,
+            'categoria_comprada', vp.categoria_comprada,
+            'preco_comprado', vp.preco_comprado
+          )
+        )
+        ELSE '[]'::json
+      END AS produtos_comprados_junto,
+      COALESCE(MAX(vp.data_venda), (SELECT MIN(data_venda) FROM vendas WHERE id_produto = $1 AND pagamento = CAST($2 AS INTEGER))) AS data_venda,
       false AS open 
     FROM
       clientes c
-    JOIN
+    LEFT JOIN
       VendasProduto vp ON c.id = vp.id_cliente
+    WHERE
+      vp.id_produto_comprado IS NOT NULL OR c.id IN (SELECT id_cliente FROM vendas WHERE id_produto = $1 AND pagamento = CAST($2 AS INTEGER))
     GROUP BY
-      c.id, c.nome, vp.data_venda
+      c.id, c.nome
     ORDER BY
-      c.id, vp.data_venda;
+      c.id;
     
     `, id, paymentType);
   } catch (err) {
